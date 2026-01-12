@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PosturePal | Antigravity</title>
+    <link rel="stylesheet" href="https://pyscript.net/releases/2023.11.1/core.css" />
+    <script type="module" src="https://pyscript.net/releases/2023.11.1/core.js"></script>
+
+    <style>
+        
+        :root {
+            --safe-green: #00ff9d;
+            --warm-coffee: #eebb99;
+            --deep-earth: #1a1614;
+            --glass: rgba(255, 255, 255, 0.08);
+            --glow-green: rgba(0, 255, 157, 0.6);
+            --glow-coffee: rgba(238, 187, 153, 0.5);
+        }
+
+        py-terminal,
+        .py-terminal {
+            display: none !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            position: absolute;
+            z-index: -9999;
+        }
+
+        body {
+            background-color: var(--deep-earth);
+            color: #f0f0f0;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            background-image: radial-gradient(circle at 20% 30%, #2d4628 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, #4a3b32 0%, var(--deep-earth) 80%);
+        }
+
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 20, 15, 0.95);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--safe-green);
+            font-size: 1.5rem;
+            flex-direction: column;
+            transition: opacity 0.5s ease;
+            text-shadow: 0 0 15px var(--glow-green);
+        }
+
+        .container {
+            background: var(--glass);
+            padding: 2.5rem;
+            border-radius: 25px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            border-left: 1px solid rgba(255, 255, 255, 0.3);
+            text-align: center;
+            width: 350px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5),
+                0 0 20px rgba(0, 255, 157, 0.1);
+            position: relative;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6),
+                0 0 30px rgba(0, 255, 157, 0.2);
+        }
+
+        h1 {
+            background: linear-gradient(135deg, var(--safe-green), #fff, var(--warm-coffee));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
+        }
+
+        #plant-display {
+            font-size: 80px;
+            margin: 20px 0;
+            filter: drop-shadow(0 0 15px var(--glow-green));
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #plant-display:hover {
+            transform: scale(1.1) rotate(5deg);
+            filter: drop-shadow(0 0 25px var(--safe-green));
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            border: none;
+            padding: 12px 24px;
+            color: white;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(56, 239, 125, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: rotate(45deg) translate(-100%, -100%);
+            transition: transform 0.6s;
+        }
+
+        .btn:hover::after {
+            transform: rotate(45deg) translate(100%, 100%);
+        }
+
+        .btn:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 6px 20px rgba(56, 239, 125, 0.5);
+        }
+
+        .btn-bad {
+            background: linear-gradient(135deg, #cb2d3e, #ef473a) !important;
+            box-shadow: 0 4px 15px rgba(239, 71, 58, 0.4) !important;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .breath-circle {
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, var(--safe-green), transparent);
+            border-radius: 50%;
+            margin: 20px auto;
+            display: none;
+            box-shadow: 0 0 20px var(--glow-green);
+        }
+
+        .breath-circle.breathing {
+            display: block;
+            animation: breathe 4s infinite ease-in-out;
+        }
+
+        @keyframes breathe {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.6;
+                box-shadow: 0 0 10px var(--glow-green);
+            }
+
+            50% {
+                transform: scale(1.4);
+                opacity: 0.9;
+                box-shadow: 0 0 40px var(--safe-green);
+            }
+        }
+        #countdown-display {
+            font-size: 3.5rem;
+            font-weight: 300;
+            color: var(--warm-coffee);
+            /* Soft coffee tone */
+            margin: 15px 0;
+            font-family: 'Segoe UI', sans-serif;
+            text-shadow: 0 0 15px rgba(238, 187, 153, 0.3);
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .neon-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-bottom: 2px solid var(--safe-green);
+            color: #fff;
+            padding: 8px;
+            border-radius: 8px;
+            width: 50px;
+            text-align: center;
+            font-size: 1.1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .neon-input:focus {
+            box-shadow: 0 0 15px var(--glow-green);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #fff;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="loading-overlay">
+        <div>Doğa Yükleniyor...</div>
+    </div>
+
+    <div class="container">
+        <h1>PosturePal</h1>
+        <div style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 15px; color: var(--warm-coffee);">SAFE & ENERGY
+            EDITION</div>
+
+        <div id="main-screen">
+            <div id="plant-display">🌱</div>
+
+            <!-- Countdown Timer Display (Hidden by default) -->
+            <div id="countdown-display" class="hidden">00:00</div>
+
+            <p id="message-box">Huzurla odaklanmaya hazır mısın?</p>
+
+            <div class="timer-settings"
+                style="margin: 20px 0; display: flex; justify-content: center; gap: 15px; align-items: center;">
+                <div class="input-group">
+                    <input type="number" id="interval-hours" min="0" max="23" value="0" class="neon-input">
+                    <span style="font-size: 0.75rem; opacity: 0.8; margin-top: 5px;">Saat</span>
+                </div>
+                <div class="input-group">
+                    <input type="number" id="interval-minutes" min="0" max="59" value="20" class="neon-input">
+                    <span style="font-size: 0.75rem; opacity: 0.8; margin-top: 5px;">Dakika</span>
+                </div>
+            </div>
+
+            <button id="start-btn" class="btn" onclick="start_timer()">Başlat</button>
+        </div>
+
+        <div id="check-screen" class="hidden">
+            <div id="breath-visual" class="breath-circle"></div>
+            <p id="check-text">Duruşun nasıl?</p>
+
+            <div id="buttons-area">
+                <button class="btn" onclick="posture_check(true)">✅ Dik Duruyorum</button>
+                <button class="btn btn-bad" onclick="posture_check(false)">⚠️ Düzeltiyorum</button>
+            </div>
+        </div>
+
+        <div class="status-text" style="color: var(--warm-coffee);">
+            Bitki Seviyesi: <span id="level-display">1</span> | Puan: <span id="score-display">0</span>
+        </div>
+    </div>
+
+    <script type="py">
+        import asyncio
+        from js import document, window, console
+
+        score = 0
+        level = 1
+        plant_stages = ["🌱", "🌿", "🪴", "🌲", "🌳", "✨🌳✨"]
+        is_running = False
+        current_interval = 20 
+
+        def update_ui():
+            document.getElementById("score-display").innerText = str(score)
+            document.getElementById("level-display").innerText = str(level)
+            
+            plant_idx = min(level - 1, len(plant_stages) - 1)
+            document.getElementById("plant-display").innerText = plant_stages[plant_idx]
+
+        async def timer_loop():
+            global is_running, current_interval
+            
+            remaining = current_interval
+            
+            # Show countdown element
+            cd_display = document.getElementById("countdown-display")
+            cd_display.classList.remove("hidden")
+            document.getElementById("message-box").innerText = "Odaklanılıyor..."
+            
+            while is_running and remaining > 0:
+                # Update Text MM:SS
+                m, s = divmod(remaining, 60)
+                h, m = divmod(m, 60)
+                
+                if h > 0:
+                    time_str = f"{h:02}:{m:02}:{s:02}"
+                else:
+                    time_str = f"{m:02}:{s:02}"
+                
+                cd_display.innerText = time_str
+                
+                # Wait 1 second tick
+                await asyncio.sleep(1)
+                remaining -= 1
+                
+                if not is_running:
+                    break
+            
+            # Finished or Stopped
+            if is_running and remaining <= 0:
+                show_check_screen()
+                is_running = False
+                cd_display.classList.add("hidden") 
+
+        def start_timer(*args):
+            global is_running, current_interval
+            
+            try:
+                h_val = document.getElementById("interval-hours").value
+                m_val = document.getElementById("interval-minutes").value
+                
+                hours = int(h_val) if h_val and h_val.strip() else 0
+                minutes = int(m_val) if m_val and m_val.strip() else 0
+            except:
+                hours = 0
+                minutes = 20 
+            
+            total_seconds = (hours * 3600) + (minutes * 60)
+            
+            if total_seconds < 5:
+                document.getElementById("message-box").innerText = "Lütfen en az 5 saniye girin!"
+                return
+
+            current_interval = total_seconds
+            is_running = True
+            
+            document.getElementById("start-btn").classList.add("hidden")
+            document.querySelector(".timer-settings").classList.add("hidden") 
+            
+            asyncio.ensure_future(timer_loop())
+
+        def show_check_screen():
+            document.getElementById("main-screen").classList.add("hidden")
+            document.getElementById("check-screen").classList.remove("hidden")
+            
+            document.getElementById("breath-visual").classList.add("breathing")
+            document.getElementById("check-text").innerText = "Derin bir nefes al... Duruşun nasıl?"
+
+        def posture_check(is_good):
+            global score, level, is_running
+            
+            if is_good:
+                score += 10
+                if score % 30 == 0:
+                    level += 1
+                msg = "Harika! Enerjin yükseliyor."
+            else:
+                score = max(0, score - 5) 
+                msg = "Sorun değil, köklen ve devam et."
+
+            update_ui()
+            document.getElementById("check-screen").classList.add("hidden")
+            document.getElementById("breath-visual").classList.remove("breathing")
+            document.getElementById("main-screen").classList.remove("hidden")
+            document.getElementById("message-box").innerText = msg
+            
+            is_running = True
+            asyncio.ensure_future(timer_loop())
+
+        window.start_timer = start_timer
+        window.posture_check = posture_check
+
+        loading = document.getElementById("loading-overlay")
+        if loading:
+            loading.style.display = "none"
+            
+        print("Geri Sayım Eklendi")
+    </script>
+</body>
+
+</html>
