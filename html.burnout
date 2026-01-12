@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PosturePal | Antigravity</title>
+    <title>PosturePal | RMY </title>
     <link rel="stylesheet" href="https://pyscript.net/releases/2023.11.1/core.css" />
     <script type="module" src="https://pyscript.net/releases/2023.11.1/core.js"></script>
 
@@ -230,7 +230,7 @@
 <body>
 
     <div id="loading-overlay">
-        <div>Doğa Yükleniyor...</div>
+        <div> Doğa Yükleniyor...</div>
     </div>
 
     <div class="container">
